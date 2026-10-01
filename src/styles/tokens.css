@@ -1,0 +1,59 @@
+/* KoPubWorld 돋움체 — 자체 포함 woff2 (KS X 1001 한글 2,350자 + 기호 + 영문·숫자 서브셋)
+   서브셋 밖 글자는 맑은 고딕 등 다음 글꼴로 대체 / 생성: scripts/build-fonts.py */
+@font-face {
+  font-family: 'KoPub Dotum';
+  src: url('/fonts/kopub-dotum-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'KoPub Dotum';
+  src: url('/fonts/kopub-dotum-bold.woff2') format('woff2');
+  font-weight: 600 700; /* 소제목(600)·제목(700) 모두 bold 파일 사용 */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* KHEPI CI 기반 디자인 토큰 — 파란색 사용 금지 */
+:root {
+  --green: #00855A;        /* 주색: 버튼, 필수, 완료 */
+  --green-ci: #009B67;     /* CI 원색: 장식용 */
+  --green-dark: #006B48;   /* 글자·호버 */
+  --green-soft: #E6F5EE;
+  --orange: #F08A01;       /* 강조: 권고, 지연 막대, 심의위원회 */
+  --orange-text: #9A5400;
+  --orange-soft: #FEF1DF;
+  --black: #373736;        /* CI 블랙: 표 머리, 수행 단계 */
+  --ink: #2A2A29;          /* 본문 */
+  --muted: #4E5B6E;        /* 보조 글자 (대비 4.5:1 이상) */
+  --silver: #706F6F;
+  --gold: #7A6A45;
+  --red: #C9352B;
+  --red-soft: #FDECEA;
+  --red-text: #A22A22;
+  --bg: #F4F5F4;
+  --surface: #FFFFFF;
+  --line: #DEE2E0;
+  --line-soft: #E8EBE9;
+
+  /* 유형색 */
+  --type-a: #00855A;  /* 내부 */
+  --type-b: #373736;  /* 위탁 */
+  --type-c: #8A5A00;  /* 수탁 */
+
+  --radius-card: 14px;
+  --radius-ctl: 8px;
+  --radius-badge: 4px;
+  --ctl-h: 44px;
+  --topbar-h: 64px;
+
+  --font: 'KoPub Dotum', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+  --fw-body: 500;   /* 본문: medium 확정 (2026.10.01.) */
+  --fw-label: 500;  /* 라벨: 굵기 대신 글자색·크기로 본문과 구분 */
+  --fs-label: 13px;
+  --label: #4E5B6E; /* = --muted */
+  --fw-title: 700;  /* 소제목·제목 */
+  --shadow-card: 0 1px 2px rgba(42, 42, 41, 0.04);
+  --shadow-pop: 0 8px 28px rgba(42, 42, 41, 0.16);
+}

@@ -1,0 +1,22 @@
+.wrap { margin-top: 16px; display: flex; flex-direction: column; gap: 16px; }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.sum { padding: 16px 18px; }
+.sumLabel { font-size: 12px; color: var(--muted); font-weight: 500; }
+.sumNum { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.sumSub { font-size: 12px; color: var(--muted); }
+.cDone { color: var(--green-dark); }
+.cLate { color: var(--orange-text); }
+.cOver { color: var(--red-text); }
+.barCard { padding: 16px 18px; }
+.bar { display: flex; gap: 3px; height: 12px; }
+.bar span { flex: 1; border-radius: 3px; }
+.legend { display: flex; gap: 16px; margin-top: 10px; font-size: 12px; color: var(--muted); flex-wrap: wrap; align-items: center; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.stepName { font-weight: 600; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.art { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.content { display: flex; flex-direction: column; gap: 4px; }
+.forms { display: flex; gap: 4px; flex-wrap: wrap; }
+.value { font-size: 12px; color: var(--ink); background: var(--bg); padding: 2px 6px; border-radius: 4px; align-self: flex-start; }
+.value.emptyVal { color: var(--muted); }
+.warn { font-size: 13px; }
+.ok { background: var(--green-soft); color: var(--green-dark); border-radius: var(--radius-ctl); padding: 10px 14px; font-size: 13px; }

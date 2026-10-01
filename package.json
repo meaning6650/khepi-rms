@@ -1,0 +1,33 @@
+{
+  "name": "khepi-rms",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:rules": "firebase emulators:exec -c firebase.test.json --only firestore,storage --project demo-khepi-rms \"vitest run --config vitest.rules.config.ts\"",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-khepi-rms",
+    "deploy:rules": "firebase deploy --only firestore:rules"
+  },
+  "dependencies": {
+    "firebase": "^12.19.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "firebase-tools": "^15.32.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.3"
+  }
+}

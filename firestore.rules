@@ -1,0 +1,105 @@
+rules_version = '2';
+
+// 연구관리 통합대장 Firestore 보안 규칙 (지시서 13장)
+// - 로그인 + config/access 허용목록 등록 계정만 접근
+// - 관리자: 전체 읽기·쓰기, members_private, 권한 관리
+// - 편집자: projects·committees 읽기·쓰기 (members_private 제외)
+// - 열람자: 읽기만
+// - history: 추가만 허용 (수정·삭제 금지)
+// - members_private: 정보보안 확인 전까지 쓰기 차단 (config/access.membersPrivateEnabled == true 일 때만 관리자 쓰기)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function access() {
+      return get(/databases/$(database)/documents/config/access).data;
+    }
+    function email() {
+      return request.auth.token.email.lower();
+    }
+    // 인증된 이메일만 허용
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/config/access)
+        && email() in access().admins;
+    }
+    function isEditor() {
+      return isAdmin() || (signedIn() && exists(/databases/$(database)/documents/config/access)
+        && email() in access().editors);
+    }
+    function isMember() {
+      return isEditor() || (signedIn() && exists(/databases/$(database)/documents/config/access)
+        && email() in access().viewers);
+    }
+
+    // 권한 목록: 등록 사용자 읽기 / 관리자만 수정
+    // 관리자 0명 방지, 본인 관리자 권한 해제 방지, membersPrivateEnabled 는 앱에서 변경 불가
+    match /config/access {
+      allow read: if isMember();
+      allow update: if isAdmin()
+        && request.resource.data.admins is list
+        && request.resource.data.editors is list
+        && request.resource.data.viewers is list
+        && request.resource.data.admins.size() > 0
+        && email() in request.resource.data.admins
+        && request.resource.data.get('membersPrivateEnabled', false) == resource.data.get('membersPrivateEnabled', false);
+      // 최초 문서 생성·membersPrivateEnabled 변경은 Firebase 콘솔에서만
+      allow create, delete: if false;
+    }
+
+    match /projects/{projectId} {
+      allow read: if isMember();
+      allow create, update: if isEditor();
+      allow delete: if isAdmin();
+
+      // 수정 이력: 추가만 (수정·삭제 금지), 작성자(by)는 본인 이메일(소문자)
+      match /history/{historyId} {
+        allow read: if isMember();
+        allow create: if isEditor() && request.resource.data.by == email();
+        allow update, delete: if false;
+      }
+
+      // 근거 기록 { category, docNo, path, fileName, note, by, at, storagePath? }
+      match /files/{fileId} {
+        allow read: if isMember();
+        allow create, update, delete: if isEditor();
+      }
+    }
+
+    match /committees/{committeeId} {
+      allow read: if isMember();
+      allow write: if isEditor();
+
+      match /members/{memberId} {
+        allow read: if isMember();
+        allow write: if isEditor();
+      }
+      match /meetings/{meetingId} {
+        allow read: if isMember();
+        allow write: if isEditor();
+      }
+      match /reviews/{reviewId} {
+        allow read: if isMember();
+        allow write: if isEditor();
+      }
+      // 위원 실명·생년월일: 관리자만 읽기 / 정보보안 확인 전 쓰기 차단
+      match /members_private/{memberId} {
+        allow read: if isAdmin();
+        allow write: if isAdmin() && access().get('membersPrivateEnabled', false) == true;
+      }
+    }
+
+    // 추가 항목(국회요구자료 등): 관리자만 정의
+    match /customFields/{fieldId} {
+      allow read: if isMember();
+      allow write: if isAdmin();
+    }
+
+    // 그 외 경로 전부 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

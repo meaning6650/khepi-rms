@@ -1,0 +1,44 @@
+rules_version = '2';
+
+// 근거 파일 Storage 보안 규칙 (지시서 13장)
+// ※ 보관용: Spark 요금제 유지로 Storage 미사용 (2026.10.01. 결정) / 배포 대상 아님 (firebase.json 미포함)
+//   에뮬레이터 테스트만 firebase.test.json 으로 실행
+// - 로그인 + 허용목록 / 업로드·삭제는 편집자 이상
+// - 20MB 이하, 확장자 pdf·hwp·hwpx·docx·xlsx·png·jpg
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function access() {
+      return firestore.get(/databases/(default)/documents/config/access).data;
+    }
+    function email() {
+      return request.auth.token.email.lower();
+    }
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function isEditor() {
+      return signedIn() && (email() in access().admins || email() in access().editors);
+    }
+    function isMember() {
+      return isEditor() || (signedIn() && email() in access().viewers);
+    }
+    function allowedFile(name) {
+      return name.lower().matches('.*[.](pdf|hwp|hwpx|docx|xlsx|png|jpg)$');
+    }
+
+    // 경로: projects/{관리번호}/{관리번호_분류_YYYYMMDD_원본명}
+    match /projects/{projectId}/{fileName} {
+      allow read: if isMember();
+      allow create, update: if isEditor()
+        && request.resource.size <= 20 * 1024 * 1024
+        && allowedFile(fileName);
+      allow delete: if isEditor();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,30 @@
+.wrap { max-width: 1320px; margin: 0 auto; padding: 28px 24px 56px; display: flex; flex-direction: column; gap: 28px; }
+.h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.sub { color: var(--muted); margin-top: 4px; font-size: 13px; }
+.h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.rc { padding: 18px; display: flex; flex-direction: column; gap: 6px; border-top: 4px solid var(--line); }
+.rc.cur { border-top-color: var(--green); }
+.step { font-size: 12px; font-weight: 700; color: var(--muted); }
+.cond { font-weight: 700; font-size: 15px; }
+.res { font-size: 13px; }
+.res b { color: var(--green-dark); }
+.cmp { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); }
+.cmpWrap { border: 1px solid var(--line); border-radius: var(--radius-card); overflow: auto; }
+.cmp th { background: var(--black); color: #fff; padding: 10px; font-weight: 600; text-align: center; border-right: 1px solid #4a4a49; }
+.cmp th.now { background: var(--green); }
+.cmp th small { display: block; font-weight: var(--fw-body); opacity: .8; font-size: 11px; }
+.cmp td { padding: 10px 12px; border-top: 1px solid var(--line-soft); border-right: 1px solid var(--line-soft); vertical-align: top; }
+.cmp td.item { text-align: center; font-weight: 600; background: #FAFBFA; white-space: nowrap; }
+.cmp td.changed { background: var(--orange-soft); }
+.cmp td.nowCol { font-weight: 500; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+.sw { display: inline-block; width: 12px; height: 12px; background: var(--orange-soft); border: 1px solid #F5D4A8; border-radius: 2px; }
+.tl { position: relative; display: grid; grid-template-columns: repeat(10, minmax(110px, 1fr)); padding: 8px 0 4px; overflow-x: auto; }
+.tl::before { content: ''; position: absolute; left: 0; right: 0; top: 23px; height: 2px; background: var(--line); }
+.node { position: relative; padding: 0 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.pin { width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--silver); margin-top: 9px; z-index: 1; }
+.pin.major { border-color: var(--green); background: var(--green); }
+.tDate { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tTitle { font-size: 12px; }
+.tMemo { font-size: 11px; color: var(--muted); }

@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.firebase/
+*.tsbuildinfo
+
+# 개인정보 포함 원자료 — GitHub 업로드 금지
+/reference/excel/
+/reference/design/private/
+
+# 글꼴 원본 TTF — woff2 서브셋만 저장소 포함
+/reference/fonts/*.ttf
+
+# Firebase 에뮬레이터·CLI 로그
+firebase-debug*.log
+firestore-debug.log
+ui-debug.log
+/reference/
