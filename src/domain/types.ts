@@ -38,14 +38,15 @@ export type EvidenceCategory = (typeof EVIDENCE_CATEGORIES)[number];
 
 /**
  * 근거 기록 — 파일 업로드 대신 공문번호·공유폴더 경로 기록 (Storage 보류, 2026.10.01. 결정)
- * 추후 Storage 도입 시 storagePath 필드만 추가 (기존 기록 그대로 사용)
+ * Storage 도입 시 storagePath 사용 (현재 자리만 유지, 기존 기록 그대로 사용)
  */
 export type EvidenceRecord = {
   category: EvidenceCategory;
   docNo: string;      // 공문번호 예: 건강증진연구소-1204(2025.12.03.)
-  path: string;       // 공유폴더 경로 예: \\nas\연구관리\B.위탁연구\B-2025-3
+  path: string;       // 과제 폴더 기준 상대 경로 (전체 경로 = config/settings.sharedRoot + 유형 폴더 + 관리번호 + path)
   fileName: string;   // 관리번호_분류_YYYYMMDD_원본명
   note: string;
   by: string;         // 작성자 이메일(소문자, 보안 규칙과 동일)
   at: string;         // 기록 일시 ISO
+  storagePath?: string; // 자리만 유지, 현재 미사용 (Storage 도입 시 사용)
 };

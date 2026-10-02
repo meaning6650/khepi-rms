@@ -38,3 +38,7 @@
 .fileGroup:first-child { border-top: 0; }
 .fileName { font-size: 13px; padding: 4px 0; display: flex; gap: 10px; }
 .fileName span { color: var(--muted); font-size: 12px; }
+.record { display: grid; grid-template-columns: 230px 1fr auto; gap: 12px; font-size: 13px; padding: 4px 0; align-items: baseline; }
+.recDoc { font-variant-numeric: tabular-nums; }
+.recName { color: var(--ink); word-break: break-all; }
+.recBy { color: var(--muted); font-size: 12px; white-space: nowrap; }

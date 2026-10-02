@@ -81,3 +81,11 @@ textarea.input { height: auto; min-height: 88px; padding: 10px 12px; resize: ver
 .tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--line); }
 .tabs button { border: 0; background: none; height: 44px; padding: 0 2px; color: var(--muted); font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; }
 .tabs button[aria-selected='true'] { color: var(--ink); font-weight: 600; border-bottom-color: var(--green); }
+
+/* 비활성 버튼 안내 말풍선: <span class=tip data-tip="..."><Button disabled/></span> */
+.tip { position: relative; display: inline-flex; }
+.tip > button:disabled { pointer-events: none; }
+.tip:hover::after {
+  content: attr(data-tip); position: absolute; right: 0; bottom: calc(100% + 6px); white-space: nowrap;
+  background: var(--black); color: #fff; font-size: 12px; padding: 5px 9px; border-radius: 6px; z-index: 10;
+}

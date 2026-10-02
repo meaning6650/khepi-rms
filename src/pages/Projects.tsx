@@ -18,7 +18,7 @@ const P = {
 };
 const won = (n: number) => n.toLocaleString('ko-KR');
 
-type Tab = '항목' | '진행 프로세스' | '근거 파일' | '수정 이력';
+type Tab = '항목' | '진행 프로세스' | '근거 기록' | '수정 이력';
 
 export function Projects() {
   const { id } = useParams();
@@ -127,7 +127,7 @@ function Detail({ p }: { p: DummyProject }) {
           </div>
         )}
         <div className={ui.tabs} role="tablist">
-          {(['항목', '진행 프로세스', '근거 파일', '수정 이력'] as Tab[]).map((t) => (
+          {(['항목', '진행 프로세스', '근거 기록', '수정 이력'] as Tab[]).map((t) => (
             <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}>{t}</button>
           ))}
         </div>
@@ -143,7 +143,7 @@ function Detail({ p }: { p: DummyProject }) {
         </>
       )}
       {tab === '진행 프로세스' && <ProgressTab p={p} />}
-      {tab === '근거 파일' && <FilesTab p={p} />}
+      {tab === '근거 기록' && <EvidenceTab p={p} />}
       {tab === '수정 이력' && (
         <div style={{ marginTop: 16 }}>
           <Table
@@ -243,27 +243,37 @@ function ItemsTab({ p }: { p: DummyProject }) {
   );
 }
 
-function FilesTab({ p }: { p: DummyProject }) {
-  const files = p.id === 'B-2025-3' ? FILES_B20253 : [];
+/** 근거 기록 탭 (견본) — 원본 파일은 공유폴더 보관, 앱은 공문번호·파일 경로만 기록 / 기록 기능은 7단계 구현 */
+function EvidenceTab({ p }: { p: DummyProject }) {
+  const records = p.id === 'B-2025-3' ? FILES_B20253 : [];
   return (
-    <div className={ui.card} style={{ marginTop: 16 }}>
-      {FILE_CATEGORIES.map((c) => {
-        const fs = files.filter((f) => f.category === c);
-        return (
-          <div key={c} className={s.fileGroup}>
-            <b style={{ paddingTop: 4 }}>{c}</b>
-            <div>
-              {fs.length === 0 && <div className={s.fileName} style={{ color: 'var(--muted)' }}>파일 없음</div>}
-              {fs.map((f) => (
-                <div key={f.name} className={s.fileName}><a href="#" onClick={(e) => e.preventDefault()}>{f.name}</a><span>{f.by} / {f.at}</span></div>
-              ))}
+    <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className={ui.notice}>원본 파일: 회사 공유폴더 보관 / 앱: 공문번호·파일 경로 기록</div>
+      <div className={ui.card}>
+        {FILE_CATEGORIES.map((c) => {
+          const rs = records.filter((r) => r.category === c);
+          return (
+            <div key={c} className={s.fileGroup}>
+              <b style={{ paddingTop: 4 }}>{c}</b>
+              <div>
+                {rs.length === 0 && <div className={s.fileName} style={{ color: 'var(--muted)' }}>기록 없음</div>}
+                {rs.map((r) => (
+                  <div key={r.fileName} className={s.record}>
+                    <span className={s.recDoc}>{r.docNo}</span>
+                    <span className={s.recName}>{r.fileName}</span>
+                    <span className={s.recBy}>{r.by} / {r.at}</span>
+                  </div>
+                ))}
+              </div>
+              <span className={ui.tip} data-tip="7단계 구현 예정" aria-label="기록 추가 / 7단계 구현 예정">
+                <Button disabled>기록 추가</Button>
+              </span>
             </div>
-            <Button>업로드</Button>
-          </div>
-        );
-      })}
-      <div style={{ padding: '12px 24px', fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--line-soft)' }}>
-        파일명 규칙: {p.id}_분류_YYYYMMDD_원본명 / pdf·hwp·hwpx·docx·xlsx·png·jpg, 20MB 이하
+          );
+        })}
+        <div style={{ padding: '12px 24px', fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--line-soft)' }}>
+          표준 파일명: {p.id}_분류_YYYYMMDD_원본명
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@
 순서대로 진행 후 **D. 회신 항목** 전달 필요.
 
 - 요금제: **Spark(무료) 유지** — Blaze 전환 안 함
-- Storage(파일 저장소): **생성 안 함** — 근거 파일은 공문번호·공유폴더 경로를 기록하는 방식(6단계)
+- Storage(파일 저장소): **생성 안 함** — 근거 파일은 공문번호·공유폴더 경로를 기록하는 방식(7단계)
 
 ---
 
@@ -20,7 +20,7 @@
 - 빌드 → Authentication → [시작하기]
 - Sign-in method → **Google** → 사용 설정 → 프로젝트 지원 이메일 선택 → 저장
 - 다른 로그인 방식(이메일/비밀번호 등)은 **사용 안 함**
-- 설정 → **승인된 도메인** → [도메인 추가] → `meaning6650.github.io` (9단계 배포 때)
+- 설정 → **승인된 도메인** → [도메인 추가] → `meaning6650.github.io` (10단계 배포 때)
   - `localhost` 는 기본 포함 (로컬 확인용)
 
 ### 3. Firestore Database (데이터)
@@ -94,7 +94,7 @@
 
 ---
 
-## C. GitHub (9단계 배포 때 진행, 미리 해도 무방)
+## C. GitHub (10단계 배포 때 진행, 미리 해도 무방)
 - Settings → Secrets and variables → Actions → 7번 값을 같은 이름으로 등록
 - Settings → Pages → Source: **GitHub Actions**
 - 저장소 비공개 권장
