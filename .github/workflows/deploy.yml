@@ -1,6 +1,6 @@
-# GitHub Pages 배포: main 푸시 시 테스트 → 빌드 → 배포
-# 필요 설정: Settings → Secrets and variables → Actions 에 VITE_FB_* 등록,
-#           Settings → Pages → Source: GitHub Actions
+# GitHub Pages 배포: main 푸시 시 테스트 → 빌드 → gh-pages 가지 갱신
+# - Pages 소스: gh-pages 가지 (저장소 Settings → Pages)
+# - Firebase 접속 정보: .env.production (공개 식별자, Secrets 불필요)
 name: Deploy to GitHub Pages
 
 on:
@@ -9,16 +9,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,23 +27,13 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-        env:
-          VITE_FB_API_KEY: ${{ secrets.VITE_FB_API_KEY }}
-          VITE_FB_AUTH_DOMAIN: ${{ secrets.VITE_FB_AUTH_DOMAIN }}
-          VITE_FB_PROJECT_ID: ${{ secrets.VITE_FB_PROJECT_ID }}
-          VITE_FB_STORAGE_BUCKET: ${{ secrets.VITE_FB_STORAGE_BUCKET }}
-          VITE_FB_MESSAGING_SENDER_ID: ${{ secrets.VITE_FB_MESSAGING_SENDER_ID }}
-          VITE_FB_APP_ID: ${{ secrets.VITE_FB_APP_ID }}
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: gh-pages 가지에 배포
+        run: |
+          cd dist
+          touch .nojekyll
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "GitHub Pages 배포 (${GITHUB_SHA::7})"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
