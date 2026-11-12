@@ -11,6 +11,8 @@ body {
   color: var(--ink);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  word-break: keep-all;       /* 한글 단어 단위 줄바꿈 */
+  overflow-wrap: break-word;
 }
 h1, h2, h3, h4, p { margin: 0; }
 button, input, select, textarea { font: inherit; color: inherit; }

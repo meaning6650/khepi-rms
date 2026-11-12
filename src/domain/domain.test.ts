@@ -3,7 +3,7 @@ import {
   addMonths, ageOn, extractDate, formatDate, formatMoney, formatPeriod, normalizeReviewNo,
   parseBirth, parseDate, parseMoney, parsePeriod, reviewYmFromNo,
 } from './fields';
-import { compareExcelRegime, determineRegime, reviewApprovalDate } from './regimes';
+import { REGIMES, compareExcelRegime, determineRegime, regimeFromLegacyLabel, regimeTitle, reviewApprovalDate } from './regimes';
 import {
   COMMITTEE_EVAL_NOTE, REFERENCE_LABEL, checkEvaluation, committeeEvalNote, computeStages, referenceRecords, summarize, type StageResult,
 } from './stages';
@@ -342,5 +342,26 @@ describe('flow 구간별 안내', () => {
     const find = (r: 'R2025' | 'R2022') => flowFor(r).flatMap((g) => g.steps).find((s) => s.id === 'evaluation');
     expect(find('R2025')?.forms).toBe('서식11호');
     expect(find('R2022')?.forms).toBe('서식8호');
+  });
+});
+
+describe('규정 표시 이름 (내부 키 유지)', () => {
+  it('구간별 표시 이름', () => {
+    expect(REGIMES.R2025.label).toBe('현행 (제221호, 2026.3.3.)');
+    expect(REGIMES.R2025.sub).toBe('기한 기준: 2025.8.11. 개정(제212호)');
+    expect(REGIMES.R2023.label).toBe('2023.5.12. 개정 (제174호)');
+    expect(REGIMES.R2022.label).toBe('2022.7.15. 전부개정 (제153호)');
+    expect(REGIMES.R2020.label).toBe('2020.8.12. 개정 (제107호)');
+    expect(REGIMES.R2019.label).toBe('2019.4.18. 제정');
+  });
+  it('과제 상세 적용 규정 표기', () => {
+    expect(regimeTitle('R2025')).toBe('2025.8.11. 개정(제212호) 기준 / 현행 제221호');
+    expect(regimeTitle('R2022')).toBe('2022.7.15. 전부개정(제153호) 기준');
+  });
+  it('현행 엑셀 표기 → 내부 키', () => {
+    expect(regimeFromLegacyLabel('2025년도 규정')).toBe('R2025');
+    expect(regimeFromLegacyLabel('2019년도 규정')).toBe('R2019');
+    expect(regimeFromLegacyLabel('2023.5.12. 개정 (제174호)')).toBe('R2023');
+    expect(regimeFromLegacyLabel('기타')).toBeNull();
   });
 });

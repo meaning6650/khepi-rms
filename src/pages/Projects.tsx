@@ -5,7 +5,7 @@ import {
   Badge, Button, DateInput, Drawer, Field, OXSelect, Select, Table, TextArea, TextInput, ui, useToast,
 } from '../components';
 import { PROJECTS, TYPE_LABEL, TYPE_SHORT, FILES_B20253, FILE_CATEGORIES, HISTORY_B20253, type DummyProject, type ProjectType } from '../dummy/projects';
-import { REGIMES, regimeTitle } from '../domain/regimes';
+import { REGIMES, compareExcelRegime, regimeTitle } from '../domain/regimes';
 import { ProgressTab } from './Progress';
 
 const TYPE_COLOR: Record<ProjectType, string> = { A: 'var(--type-a)', B: 'var(--type-b)', C: 'var(--type-c)' };
@@ -86,7 +86,7 @@ function Detail({ p }: { p: DummyProject }) {
   const [drawer, setDrawer] = useState(false);
   const toast = useToast();
   const reg = p.regime ? REGIMES[p.regime] : null;
-  const mismatch = p.excelRegime && reg && p.excelRegime !== reg.label;
+  const mismatch = compareExcelRegime(p.regime, p.excelRegime);
 
   return (
     <section className={s.detail}>
@@ -123,7 +123,7 @@ function Detail({ p }: { p: DummyProject }) {
         </div>
         {mismatch && (
           <div className={`${ui.notice} ${s.warn}`}>
-            엑셀 표기 {p.excelRegime} / 판단 기준 상이, 확인 필요
+            {mismatch.text}
           </div>
         )}
         <div className={ui.tabs} role="tablist">

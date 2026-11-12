@@ -18,7 +18,7 @@ npm run emulators  # 로컬 에뮬레이터 (.env.local 에 VITE_FB_USE_EMULATOR
 ## 진행 단계
 - [x] 1단계 프로젝트 생성, 토큰·공통 컴포넌트, 상단바, 정적 화면 6종(더미 데이터)
 - [x] 2단계 domain(regimes, stages, flow, fields) + 단위 테스트 (`npm test`)
-- [x] 3단계 Firebase 연결, 로그인, 권한, 보안 규칙 (콘솔 설정: `docs/Firebase_설정_안내.md`)
+- [x] 3단계 Firebase 연결, 로그인, 권한, 보안 규칙 (콘솔 설정: `docs/Firebase_설정_안내.md`) — 실환경 확인 완료(2026.11.12.)
 - [ ] 4~10단계 이관, 데이터 연결, 담당자 일정·기존 일정관리 앱 흡수, 근거 기록, 심의위원회, 엑셀 내보내기, 배포·설명서 (후임자용 설명서는 10단계)
 
 ## 문서

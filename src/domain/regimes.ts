@@ -10,28 +10,57 @@ export type RegimeKey = 'R2019' | 'R2020' | 'R2022' | 'R2023' | 'R2025';
 
 export type Regime = {
   key: RegimeKey;
-  label: string;
   ruleNo: string;
+  /** 화면 표시 이름 (2026.11.12. 변경, 내부 키는 유지) */
+  label: string;
+  /** 보조 문구 (R2025: 기한 기준 개정 표시) */
+  sub?: string;
+  /** 기한 산정 기준 개정 표기 — 과제 상세 "적용 규정: ○○ 기준" */
+  basisLabel: string;
+  /** 현행 엑셀 '연구관리규정(기준)' 표기 (이관 대응용) */
+  legacyLabel: string;
   effective: string; // YYYY-MM-DD
   basis: string;     // 적용 기준
   note?: string;
 };
 
 export const REGIMES: Record<RegimeKey, Regime> = {
-  R2019: { key: 'R2019', label: '2019년도 규정', ruleNo: '제77호(제정)', effective: '2019-04-18', basis: '연구시작일(협약일)', note: '부칙: 시행 이전 협약 과제는 종전 협약내용 적용' },
-  R2020: { key: 'R2020', label: '2020년도 규정', ruleNo: '제107호', effective: '2020-08-12', basis: '연구시작일' },
-  R2022: { key: 'R2022', label: '2022년도 규정', ruleNo: '제153호(전부개정)', effective: '2022-07-15', basis: '심의 승인일', note: '부칙: 시행일 이후 선정 과제부터 적용' },
-  R2023: { key: 'R2023', label: '2023년도 규정', ruleNo: '제174호', effective: '2023-05-12', basis: '심의 승인일', note: '기한 산정 R2022와 동일 / 위탁 신청 서식 변경' },
-  R2025: { key: 'R2025', label: '2025년도 규정', ruleNo: '제212호', effective: '2025-08-11', basis: '연구종료일', note: '적용례 없음, 개정일부터 시행' },
+  R2019: {
+    key: 'R2019', label: '2019.4.18. 제정', basisLabel: '2019.4.18. 제정(제77호)', legacyLabel: '2019년도 규정',
+    ruleNo: '제77호(제정)', effective: '2019-04-18', basis: '연구시작일(협약일)', note: '부칙: 시행 이전 협약 과제는 종전 협약내용 적용',
+  },
+  R2020: {
+    key: 'R2020', label: '2020.8.12. 개정 (제107호)', basisLabel: '2020.8.12. 개정(제107호)', legacyLabel: '2020년도 규정',
+    ruleNo: '제107호', effective: '2020-08-12', basis: '연구시작일',
+  },
+  R2022: {
+    key: 'R2022', label: '2022.7.15. 전부개정 (제153호)', basisLabel: '2022.7.15. 전부개정(제153호)', legacyLabel: '2022년도 규정',
+    ruleNo: '제153호(전부개정)', effective: '2022-07-15', basis: '심의 승인일', note: '부칙: 시행일 이후 선정 과제부터 적용',
+  },
+  R2023: {
+    key: 'R2023', label: '2023.5.12. 개정 (제174호)', basisLabel: '2023.5.12. 개정(제174호)', legacyLabel: '2023년도 규정',
+    ruleNo: '제174호', effective: '2023-05-12', basis: '심의 승인일', note: '기한 산정 R2022와 동일 / 위탁 신청 서식 변경',
+  },
+  R2025: {
+    key: 'R2025', label: '현행 (제221호, 2026.3.3.)', sub: '기한 기준: 2025.8.11. 개정(제212호)', basisLabel: '2025.8.11. 개정(제212호)', legacyLabel: '2025년도 규정',
+    ruleNo: '제212호', effective: '2025-08-11', basis: '연구종료일', note: '적용례 없음, 개정일부터 시행 / 이후 제219·221호는 기한 변경 없음',
+  },
 };
 
 export const REGIME_ORDER: RegimeKey[] = ['R2025', 'R2023', 'R2022', 'R2020', 'R2019'];
 
-/** 화면 표기: "2025년도 규정 (제212호, 2025.8.11. 시행)" */
+/** 과제 상세 적용 규정 표기: "2025.8.11. 개정(제212호) 기준 / 현행 제221호" */
 export function regimeTitle(k: RegimeKey): string {
   const r = REGIMES[k];
-  const [y, m, d] = r.effective.split('-').map(Number);
-  return `${r.label} (${r.ruleNo.replace(/\(.*\)/, '')}, ${y}.${m}.${d}. 시행)`;
+  return k === 'R2025' ? `${r.basisLabel} 기준 / 현행 제221호` : `${r.basisLabel} 기준`;
+}
+
+/** 현행 엑셀 표기 → 내부 키 ("2025년도 규정" → R2025) */
+export function regimeFromLegacyLabel(text: string | null | undefined): RegimeKey | null {
+  if (!text) return null;
+  const t = text.replace(/\s/g, '');
+  const hit = (Object.values(REGIMES) as Regime[]).find((r) => t.includes(r.legacyLabel.replace(/\s/g, '')) || t === r.label.replace(/\s/g, ''));
+  return hit?.key ?? null;
 }
 
 /* ---------- 규정 기준표 (구간별 비교) ---------- */
@@ -280,7 +309,7 @@ export function compareExcelRegime(regime: RegimeKey | null, excelLabel: string 
   { level: 'info' | 'warn'; text: string } | null {
   if (!regime || !excelLabel || !excelLabel.trim()) return null;
   const year = /(\d{4})/.exec(excelLabel)?.[1];
-  const excelKey = year ? (`R${year}` as RegimeKey) : null;
+  const excelKey = regimeFromLegacyLabel(excelLabel) ?? (year ? (`R${year}` as RegimeKey) : null);
   if (excelKey === regime) return null;
   const label = excelLabel.trim();
   const pair = new Set([regime, excelKey]);

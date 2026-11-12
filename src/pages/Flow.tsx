@@ -2,15 +2,9 @@ import { Fragment, useState } from 'react';
 import s from './Flow.module.css';
 import { Button, KindBadge, ui } from '../components';
 import { flowFor } from '../domain/flow';
-import { REGIMES, type RegimeKey } from '../domain/regimes';
+import { REGIMES, REGIME_ORDER, type RegimeKey } from '../domain/regimes';
 
-const TABS: { key: RegimeKey; label: string }[] = [
-  { key: 'R2025', label: '2025년도 (현행)' },
-  { key: 'R2023', label: '2023년도' },
-  { key: 'R2022', label: '2022년도' },
-  { key: 'R2020', label: '2020년도' },
-  { key: 'R2019', label: '2019년도' },
-];
+const TABS: { key: RegimeKey; label: string }[] = REGIME_ORDER.map((k) => ({ key: k, label: REGIMES[k].label }));
 
 /** "**굵게**" 표기 → <b>, " / " → 항목 구분 */
 function Rich({ text }: { text: string }) {
@@ -38,7 +32,7 @@ export function Flow() {
       <div className={s.head}>
         <div>
           <h1 className={s.h1}>진행 프로세스 안내</h1>
-          <p className={s.sub}>{r.label} ({r.ruleNo}, {r.effective.replaceAll('-', '.')}. 시행) / 굵게: 기한·필수 요건</p>
+          <p className={s.sub}>{r.label}{r.sub ? ` / ${r.sub}` : ''} / 굵게: 기한·필수 요건</p>
         </div>
         <Button className="no-print" onClick={() => window.print()}>인쇄 (A4 가로)</Button>
       </div>

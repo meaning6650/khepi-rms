@@ -5,10 +5,10 @@ import { COMPARE_ROWS, REGIMES, REVISIONS, type RegimeKey } from '../domain/regi
 const COLS: RegimeKey[] = ['R2019', 'R2020', 'R2022', 'R2023', 'R2025'];
 
 const DECISION = [
-  { step: '판별 1', cond: '2025.8.11. 이후 종료', basis: '연구종료일', res: '2025년도 규정', no: '제212호', cur: true },
-  { step: '판별 2', cond: '2023.5.12. 이후 심의 승인', basis: '심의 승인일', res: '2023년도 규정', no: '제174호' },
-  { step: '판별 3', cond: '2022.7.15. 이후 심의 승인', basis: '심의 승인일', res: '2022년도 규정', no: '제153호' },
-  { step: '판별 4', cond: '그 이전', basis: '연구시작일(협약일)', res: '2020년도 / 2019년도 규정', no: '제107호 / 제77호' },
+  { step: '판별 1', cond: '2025.8.11. 이후 종료', basis: '연구종료일', res: REGIMES.R2025.label, no: REGIMES.R2025.sub, cur: true },
+  { step: '판별 2', cond: '2023.5.12. 이후 심의 승인', basis: '심의 승인일', res: REGIMES.R2023.label },
+  { step: '판별 3', cond: '2022.7.15. 이후 심의 승인', basis: '심의 승인일', res: REGIMES.R2022.label },
+  { step: '판별 4', cond: '그 이전', basis: '연구시작일(협약일)', res: `${REGIMES.R2020.label} / ${REGIMES.R2019.label}` },
 ];
 
 export function Regulations() {
@@ -26,7 +26,8 @@ export function Regulations() {
             <div key={d.step} className={`${ui.card} ${s.rc} ${d.cur ? s.cur : ''}`}>
               <span className={s.step}>{d.step}</span>
               <span className={s.cond}>{d.cond}</span>
-              <span className={s.res}>→ <b>{d.res}</b> ({d.no})</span>
+              <span className={s.res}>→ <b>{d.res}</b></span>
+              {d.no && <span className={s.res}>{d.no}</span>}
               <span className={s.res} style={{ color: 'var(--muted)' }}>기준: {d.basis}</span>
             </div>
           ))}
@@ -43,8 +44,8 @@ export function Regulations() {
                 <th style={{ width: 130 }}>구분</th>
                 {COLS.map((k) => (
                   <th key={k} className={k === 'R2025' ? s.now : ''}>
-                    {REGIMES[k].label}{k === 'R2025' && ' (현행)'}
-                    <small>{REGIMES[k].ruleNo} / {REGIMES[k].effective.replaceAll('-', '.')}.</small>
+                    {REGIMES[k].label}
+                    {REGIMES[k].sub && <small>{REGIMES[k].sub}</small>}
                   </th>
                 ))}
               </tr>
