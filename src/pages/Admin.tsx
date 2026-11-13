@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Field, Select, Table, TextInput, ui, useToast } from '../components';
 import { useAuth } from '../app/auth';
 import { ROLE_LABEL, normEmail, setUserRole, type Role } from '../data/access';
+import { AdminImport } from './AdminImport';
 
 const CUSTOM = [{ label: '국회요구자료 제출 여부', type: '선택형', options: 'O / X / 해당없음' }];
 const ROLE_BY_LABEL: Record<string, Role> = { 관리자: 'admin', 편집자: 'editor', 열람자: 'viewer' };
@@ -84,6 +85,7 @@ export function Admin() {
         ]} />
         <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>예시 데이터 / 추가 항목 저장은 5단계 데이터 연결 시 제공</p>
       </section>
+      <AdminImport />
       <section style={{ display: 'flex', gap: 8 }}>
         <Button variant="primary">엑셀 내보내기 (표준 원자료)</Button>
         <Button>홈페이지 게시현황 양식</Button>

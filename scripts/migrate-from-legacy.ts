@@ -133,7 +133,13 @@ function convert(field: string, v: Raw, ctx: { id: string; sheet: string; rowNo:
   if (DATE_FIELDS.has(field)) return isoDate(v) ?? t; // "X"·"해당없음" 등은 원문 유지
   if (NUMBER_FIELDS.has(field)) return typeof v === 'number' ? v : parseMoney(t) ?? t;
   if (field === 'periodInitial' || field === 'periodFinal') {
-    const p = parsePeriod(t);
+    let p = parsePeriod(t);
+    if (!p && /\.\./.test(t)) {
+      // 오타 보정 (2026.11.13. 승인): "2025..12.10." → "2025.12.10."
+      const fixed = t.replace(/\.{2,}/g, '.');
+      p = parsePeriod(fixed);
+      if (p) note(ctx.id, `${field === 'periodFinal' ? '연구기간(최종)' : '연구기간(최초)'} 오타 보정: "${t}" → "${formatPeriod(p)}"`);
+    }
     if (!p) checks.push({ 구분: '기간 형식', 대상: ctx.id, 시트: ctx.sheet, 행: String(ctx.rowNo), 내용: `해석 불가: ${t}`, 조치: '원문 유지, 확인 필요' });
     return p ? formatPeriod(p) : t;
   }
@@ -175,8 +181,16 @@ function mergeSecondary(id: string, field: string, value: unknown, sheet: string
     note(id, `${field}: 원장 빈 칸 → ${sheet} 값 보충 (${b})`);
     return;
   }
-  mismatches.push({ 관리번호: id, 항목: field, 원장시트: baseSheet, 원장값: a, 비교시트: sheet, 비교값: b, 처리: '원장 유지, legacyNote 기록' });
+  mismatches.push({ 관리번호: id, 항목: field, 원장시트: baseSheet, 원장값: a, 비교시트: sheet, 비교값: b, 처리: '원장 유지, legacyNote 기록, 화면 확인 필요' });
   note(id, `${field}: 원장 "${a}" / ${sheet} "${b}" 상이`);
+  flag(id, field, `원장 "${a}" / ${sheet} "${b}" 상이, 확인 필요`);
+}
+
+/** 화면 '확인 필요' 표시용 (projects.reviewFlags) */
+const reviewFlags = new Map<string, { field: string; message: string }[]>();
+function flag(id: string, field: string, message: string) {
+  if (!reviewFlags.has(id)) reviewFlags.set(id, []);
+  reviewFlags.get(id)!.push({ field, message });
 }
 
 function note(id: string, msg: string) {
@@ -296,10 +310,18 @@ async function loadResearch(file: string) {
     const rows = readSheet(alioWs);
     let matched = 0;
     const titleKey = (t: unknown) => String(t ?? '').replace(/\s/g, '');
+    const manual = new Map<number, string>(String(args['alio-map'] ?? '').split(',').filter(Boolean).map((p) => {
+      const [row, id] = p.split('=').map((x) => x.trim());
+      return [Number(row), id] as [number, string];
+    }));
     for (const r of rows) {
       const title = titleKey(text(r.get('연구과제명')));
       const year = text(r.get('연도'));
-      const hits = [...projects.entries()].filter(([, d]) => titleKey(d.title) === title && (!year || String(d.year) === year));
+      const forced = manual.get(r.rowNo);
+      const hits = forced && projects.has(forced)
+        ? [[forced, projects.get(forced)!] as [string, Doc]]
+        : [...projects.entries()].filter(([, d]) => titleKey(d.title) === title && (!year || String(d.year) === year));
+      if (forced) note(forced, `알리오공시 ${r.rowNo}행 수동 연결 (과제명 "${text(r.get('연구과제명'))}")`);
       if (hits.length !== 1) {
         checks.push({ 구분: '알리오공시 미대응', 대상: text(r.get('연구과제명')).slice(0, 40), 시트: RESEARCH_SHEETS.alio, 행: String(r.rowNo), 내용: hits.length ? `같은 과제명 ${hits.length}건` : '과제명 일치 과제 없음', 조치: '수동 대응 필요' });
         continue;
@@ -523,6 +545,8 @@ async function main() {
     const ex = excelRegime.get(id)?.value ?? null;
     if (reg.status === 'unknown') checks.push({ 구분: '적용 규정 판별 불가', 대상: id, 시트: '-', 행: '', 내용: reg.basis, 조치: '연구기간 확인 필요' });
     const cmp = compareExcelRegime(reg.regime, ex);
+    // 판별 결과 사용 (2026.11.13. 승인), 엑셀 표기는 legacyNote 기록
+    if (cmp && reg.regime) note(id, `엑셀 규정 표기 "${ex}" / 판별 결과 ${REGIMES[reg.regime].label} 사용 (${cmp.level === 'warn' ? '판단 기준 상이' : '기한 산정 동일, 표기만 상이'})`);
     if (cmp) checks.push({ 구분: cmp.level === 'warn' ? '규정 판별 상이' : '규정 표기만 상이', 대상: id, 시트: '평가 및 공표', 행: '', 내용: `${cmp.text} / 판별: ${reg.regime ? REGIMES[reg.regime].label : '-'} (${reg.basis})`, 조치: cmp.level === 'warn' ? '확인 필요 표시' : '조치 없음' });
     // 평균 점수 비교
     const evs = (getPath(d, 'evaluation.evaluators') as { score: number | null }[] | undefined) ?? [];
@@ -534,8 +558,10 @@ async function main() {
       note(id, `평균점수 엑셀 ${exAvg} / 재산정 ${avg} 상이`);
     }
     delete d._excelAverage;
-    if (ex) d._excelRegime = ex;
+    delete d._excelRegime;
+    if (ex) d.excelRegimeLabel = ex;
     d.legacyNote = (legacyNotes.get(id) ?? []).join('\n');
+    if (reviewFlags.has(id)) d.reviewFlags = reviewFlags.get(id);
     summary.push({
       관리번호: id, 유형: d.type, 연구과제명: d.title, 연구기간: d.periodFinal ?? d.periodInitial ?? '', 연구종료일: d.endDate ?? '',
       심의승인번호: getPath(d, 'review.no') ?? '', 판별규정: reg.regime ? REGIMES[reg.regime].label : reg.status === 'excluded' ? '판별 제외(수탁)' : '판별 불가',
